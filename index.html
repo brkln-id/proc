@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistem Pengajuan Keuangan</title>
+  <title>Bariklana | Sistem Pengajuan</title>
 
   <!-- =============================================
        FAVICON
@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon"                   href="favicon-180.png" />
 
   <!-- Open Graph -->
-  <meta property="og:title"       content="Sistem Pengajuan Keuangan" />
+  <meta property="og:title"       content="Bariklana | Sistem Pengajuan" />
   <meta property="og:description" content="Sistem Pengajuan Keuangan PT Bariklana Catering Aqiqah" />
   <meta property="og:image"       content="favicon-180.png" />
 
@@ -95,13 +95,12 @@
   <!-- =============================================
        GANTI src dengan URL deployment GAS kamu
        Format:
-       https://script.google.com/macros/s/AKfycbwoVP0iifamsqzd6Yg5Pjw5KR5SIdWR8OwFEAFtQur90G3nimBewgpyJZ5n_eb9DxOg/exec
+       https://script.google.com/macros/s/DEPLOY_ID/exec
        ============================================= -->
   <iframe
     id="appFrame"
     src="https://script.google.com/macros/s/AKfycbwoVP0iifamsqzd6Yg5Pjw5KR5SIdWR8OwFEAFtQur90G3nimBewgpyJZ5n_eb9DxOg/exec"
-    allow="forms"
-    title="Sistem Pengajuan Keuangan"
+    title="Bariklana | Sistem Pengajuan"
   ></iframe>
 
   <script>
@@ -122,17 +121,26 @@
     };
 
     // ── Tampilkan loading screen saat ganti halaman ──
+    // ── Tampilkan loading screen ──
     function showLoading(label) {
       loadingLabel.textContent = label || "Memuat halaman...";
+      loading.style.display = "flex";   // reset display dulu
+      loading.style.opacity = "1";
       loading.classList.remove("hidden");
       frame.classList.remove("visible");
+      frame.style.opacity = "0";
     }
 
     // ── Sembunyikan loading saat iframe siap ──
     function hideLoading() {
       loading.classList.add("hidden");
       frame.classList.add("visible");
-      setTimeout(function () { loading.style.display = "none"; }, 450);
+      // Sembunyikan setelah transisi CSS selesai (0.4s)
+      setTimeout(function () {
+        if (loading.classList.contains("hidden")) {
+          loading.style.display = "none";
+        }
+      }, 450);
     }
 
     // ── Navigasi: ganti src iframe tanpa keluar dari GitHub Pages ──
@@ -146,21 +154,21 @@
         "LPJ"       : "Memuat Form LPJ..."
       };
 
-      loading.style.display = "flex"; // pastikan display kembali flex
       showLoading(labels[page] || "Memuat halaman...");
-
       frame.src = url;
     }
 
     // ── Terima pesan navigasi dari dalam iframe (GAS pages) ──
+    // GAS menggunakan subdomain googleusercontent.com yang dinamis
+    // sehingga origin tidak bisa diprediksi — validasi cukup dari
+    // struktur payload { bariklanaNav } yang unik untuk app ini
     window.addEventListener("message", function (event) {
-      // Validasi: hanya proses pesan dari domain GAS
-      if (!event.origin.includes("google.com") &&
-          !event.origin.includes("googleusercontent.com")) return;
-
       var data = event.data;
-      if (data && data.bariklanaNav) {
-        navigateTo(data.bariklanaNav);
+      if (data && typeof data === "object" && data.bariklanaNav) {
+        var allowed = ["Pengajuan", "Dashboard", "LPJ"];
+        if (allowed.indexOf(data.bariklanaNav) !== -1) {
+          navigateTo(data.bariklanaNav);
+        }
       }
     });
 
