@@ -16,7 +16,10 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; width: 100%; overflow: hidden; background: #f0faf4; font-family: "Segoe UI", Arial, sans-serif; }
+    html, body {
+      height: 100%; width: 100%; overflow: hidden;
+      background: #f0faf4; font-family: "Segoe UI", Arial, sans-serif;
+    }
 
     #loading {
       position: fixed; inset: 0; background: #f0faf4;
@@ -25,6 +28,7 @@
       transition: opacity 0.4s ease;
     }
     #loading.hidden { opacity: 0; pointer-events: none; }
+
     .spinner {
       width: 44px; height: 44px;
       border: 4px solid #c3e6cc; border-top-color: #00a862;
@@ -49,25 +53,21 @@
   <div class="loading-label" id="loadingLabel">Memuat aplikasi...</div>
 </div>
 
-<!-- ============================================================
-     KONFIGURASI — ISI KEDUA NILAI INI SESUAI MILIKMU
-     GAS_BASE_URL  : URL deployment GAS kamu
-     PAGES_BASE_URL: URL GitHub Pages kamu (tanpa trailing slash)
-     ============================================================ -->
 <iframe id="appFrame" src="" title="Bariklana | Sistem Keuangan"></iframe>
 
 <script>
-  // ============================================================
-  //  KONFIGURASI — WAJIB DIISI
-  // ============================================================
-  var GAS_BASE_URL  = "https://script.google.com/macros/s/AKfycbwoVP0iifamsqzd6Yg5Pjw5KR5SIdWR8OwFEAFtQur90G3nimBewgpyJZ5n_eb9DxOg/exec";
-  var PAGES_BASE_URL = "https://pengajuanbariklana.my.id";
-  // Contoh: "https://bariklana.github.io/erp"
-  // Jika pakai custom domain: "https://erp.bariklana.com"
+  // ==============================================================
+  //  KONFIGURASI — ISI SESUAI MILIKMU (hanya GAS_BASE_URL)
+  //  PAGES_BASE_URL tidak perlu diisi — dibaca otomatis dari URL
+  // ==============================================================
+  var GAS_BASE_URL = "https://script.google.com/macros/s/AKfycbwoVP0iifamsqzd6Yg5Pjw5KR5SIdWR8OwFEAFtQur90G3nimBewgpyJZ5n_eb9DxOg/exec";
 
-  // ============================================================
-  //  MAP HALAMAN
-  // ============================================================
+  // Baca URL GitHub Pages saat ini secara otomatis (tanpa ?nav= dan trailing slash)
+  var PAGES_BASE_URL = window.location.origin + window.location.pathname.replace(/\/$/, "").replace(/\/index\.html$/, "");
+
+  // ==============================================================
+  //  MAP HALAMAN GAS
+  // ==============================================================
   var PAGE_MAP = {
     "Pengajuan" : GAS_BASE_URL,
     "Dashboard" : GAS_BASE_URL + "?page=Dashboard",
@@ -84,20 +84,13 @@
   var loading      = document.getElementById("loading");
   var loadingLabel = document.getElementById("loadingLabel");
 
-  // ============================================================
-  //  BACA HALAMAN DARI QUERY STRING ?nav=X
-  //  Navigasi dari GAS dilakukan via window.open(PAGES_URL?nav=X, "_top")
-  //  sehingga index.html di-reload dengan parameter nav
-  // ============================================================
-  function getNavParam() {
-    var params = new URLSearchParams(window.location.search);
-    return params.get("nav") || "Pengajuan";
-  }
-
+  // ==============================================================
+  //  SHOW / HIDE LOADING
+  // ==============================================================
   function showLoading(label) {
-    loadingLabel.textContent = label || "Memuat halaman...";
-    loading.style.display    = "flex";
-    loading.style.opacity    = "1";
+    loadingLabel.textContent  = label || "Memuat halaman...";
+    loading.style.display     = "flex";
+    loading.style.opacity     = "1";
     loading.classList.remove("hidden");
     frame.classList.remove("visible");
   }
@@ -106,30 +99,70 @@
     loading.classList.add("hidden");
     frame.classList.add("visible");
     setTimeout(function () {
-      if (loading.classList.contains("hidden")) loading.style.display = "none";
+      if (loading.classList.contains("hidden")) {
+        loading.style.display = "none";
+      }
     }, 450);
   }
 
+  // ==============================================================
+  //  NAVIGASI — ganti src iframe, URL browser tetap di GitHub Pages
+  // ==============================================================
   function loadPage(page) {
-    var gasUrl = PAGE_MAP[page] || PAGE_MAP["Pengajuan"];
+    var gasUrl    = PAGE_MAP[page] || PAGE_MAP["Pengajuan"];
+    var separator = (gasUrl.indexOf("?") !== -1) ? "&" : "?";
 
-    // Kirim PAGES_BASE_URL ke GAS sebagai query param agar getPagesUrl() otomatis tahu
-    // GAS akan simpan ke PropertiesService via doGet()
-    var pagesParam = encodeURIComponent(PAGES_BASE_URL);
-    var separator  = (gasUrl.indexOf("?") !== -1) ? "&" : "?";
-    var fullUrl    = gasUrl + separator + "pagesUrl=" + pagesParam;
+    // Kirim PAGES_BASE_URL ke GAS agar PropertiesService tahu
+    // (sebagai fallback jika postMessage tidak bisa dipakai suatu saat)
+    var fullUrl = gasUrl + separator + "pagesUrl=" + encodeURIComponent(PAGES_BASE_URL);
 
     showLoading(PAGE_LABELS[page] || "Memuat halaman...");
     frame.src = fullUrl;
   }
 
-  // ── Load halaman sesuai ?nav= saat pertama buka ──
+  // ==============================================================
+  //  LISTENER postMessage DARI GAS (iframe)
+  //  GAS mengirim string "nav:Dashboard" / "nav:LPJ" / "nav:Pengajuan"
+  //  Format string (bukan object) lebih andal menembus GAS CSP
+  // ==============================================================
+  window.addEventListener("message", function (event) {
+    var data = event.data;
+
+    // Terima string "nav:X"
+    if (typeof data === "string" && data.indexOf("nav:") === 0) {
+      var page = data.replace("nav:", "");
+      if (PAGE_MAP[page]) {
+        loadPage(page);
+      }
+      return;
+    }
+
+    // Terima object { bariklanaNav: "X" } sebagai fallback
+    if (data && typeof data === "object" && data.bariklanaNav) {
+      var page = data.bariklanaNav;
+      if (PAGE_MAP[page]) {
+        loadPage(page);
+      }
+    }
+  });
+
+  // ==============================================================
+  //  INIT — baca ?nav= dari URL saat pertama buka
+  // ==============================================================
+  function getNavParam() {
+    var params = new URLSearchParams(window.location.search);
+    return params.get("nav") || "Pengajuan";
+  }
+
   var currentPage = getNavParam();
   loadPage(currentPage);
 
-  frame.addEventListener("load", function () { hideLoading(); });
+  // Sembunyikan loading saat iframe selesai load
+  frame.addEventListener("load", function () {
+    hideLoading();
+  });
 
-  // ── Fallback hide loading setelah 12 detik ──
+  // Fallback: paksa hide setelah 12 detik
   setTimeout(function () {
     loading.classList.add("hidden");
     frame.classList.add("visible");
