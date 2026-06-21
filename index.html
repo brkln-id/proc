@@ -3,186 +3,138 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bariklana | Sistem Pengajuan</title>
+  <title>Sistem Pengajuan Bariklana</title>
 
-  <!-- =============================================
-       FAVICON
-       Letakkan file-file ini di root repo GitHub
-       bersama index.html
-       ============================================= -->
   <link rel="icon"           type="image/x-icon" href="favicon.ico" />
   <link rel="icon"           type="image/png"    href="favicon.png"    sizes="32x32" />
   <link rel="icon"           type="image/png"    href="favicon-16.png" sizes="16x16" />
   <link rel="apple-touch-icon"                   href="favicon-180.png" />
 
-  <!-- Open Graph -->
   <meta property="og:title"       content="Bariklana | Sistem Pengajuan" />
   <meta property="og:description" content="Sistem Pengajuan Keuangan PT Bariklana Catering Aqiqah" />
   <meta property="og:image"       content="favicon-180.png" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background: #f0faf4; font-family: "Segoe UI", Arial, sans-serif; }
 
-    html, body {
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      background: #f0faf4;
-      font-family: "Segoe UI", Arial, sans-serif;
-    }
-
-    /* ── LOADING SCREEN ── */
     #loading {
-      position: fixed;
-      inset: 0;
-      background: #f0faf4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      z-index: 999;
+      position: fixed; inset: 0; background: #f0faf4;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 18px; z-index: 999;
       transition: opacity 0.4s ease;
     }
-    #loading.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
     .spinner {
-      width: 44px;
-      height: 44px;
-      border: 4px solid #c3e6cc;
-      border-top-color: #00a862;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      width: 44px; height: 44px;
+      border: 4px solid #c3e6cc; border-top-color: #00a862;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-brand {
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: #006c40;
-      letter-spacing: 0.5px;
-    }
-    .loading-label {
-      font-size: 0.92rem;
-      color: #5a7a65;
-      font-weight: 600;
-    }
+    .loading-brand { font-size: 1.3rem; font-weight: 800; color: #006c40; }
+    .loading-label { font-size: 0.92rem; color: #5a7a65; font-weight: 600; }
 
-    /* ── IFRAME ── */
     #appFrame {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-      opacity: 0;
-      transition: opacity 0.35s ease;
+      width: 100%; height: 100%; border: none; display: block;
+      opacity: 0; transition: opacity 0.35s ease;
     }
-    #appFrame.visible {
-      opacity: 1;
-    }
+    #appFrame.visible { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- Loading screen -->
-  <div id="loading">
-    <div class="loading-brand">Sistem Pengajuan Keuangan</div>
-    <div class="spinner"></div>
-    <div class="loading-label" id="loadingLabel">Memuat aplikasi...</div>
-  </div>
+<div id="loading">
+  <div class="loading-brand">Sistem Pengajuan Bariklana</div>
+  <div class="spinner"></div>
+  <div class="loading-label" id="loadingLabel">Memuat aplikasi...</div>
+</div>
 
-  <!-- =============================================
-       GANTI src dengan URL deployment GAS kamu
-       Format:
-       https://script.google.com/macros/s/DEPLOY_ID/exec
-       ============================================= -->
-  <iframe
-    id="appFrame"
-    src="https://script.google.com/macros/s/AKfycbwoVP0iifamsqzd6Yg5Pjw5KR5SIdWR8OwFEAFtQur90G3nimBewgpyJZ5n_eb9DxOg/exec"
-    title="Bariklana | Sistem Pengajuan"
-  ></iframe>
+<!-- ============================================================
+     KONFIGURASI — ISI KEDUA NILAI INI SESUAI MILIKMU
+     GAS_BASE_URL  : URL deployment GAS kamu
+     PAGES_BASE_URL: URL GitHub Pages kamu (tanpa trailing slash)
+     ============================================================ -->
+<iframe id="appFrame" src="" title="Bariklana | Sistem Keuangan"></iframe>
 
-  <script>
-    // =====================================================
-    //  KONFIGURASI — Ganti DEPLOY_ID sesuai milikmu
-    // =====================================================
-    var GAS_BASE_URL = "https://script.google.com/macros/s/AKfycbwoVP0iifamsqzd6Yg5Pjw5KR5SIdWR8OwFEAFtQur90G3nimBewgpyJZ5n_eb9DxOg/exec";
+<script>
+  // ============================================================
+  //  KONFIGURASI — WAJIB DIISI
+  // ============================================================
+  var GAS_BASE_URL  = "https://script.google.com/macros/s/AKfycbwoVP0iifamsqzd6Yg5Pjw5KR5SIdWR8OwFEAFtQur90G3nimBewgpyJZ5n_eb9DxOg/exec";
+  var PAGES_BASE_URL = "https://brkln-id.github.io/proc";
+  // Contoh: "https://bariklana.github.io/erp"
+  // Jika pakai custom domain: "https://erp.bariklana.com"
 
-    var frame        = document.getElementById("appFrame");
-    var loading      = document.getElementById("loading");
-    var loadingLabel = document.getElementById("loadingLabel");
+  // ============================================================
+  //  MAP HALAMAN
+  // ============================================================
+  var PAGE_MAP = {
+    "Pengajuan" : GAS_BASE_URL,
+    "Dashboard" : GAS_BASE_URL + "?page=Dashboard",
+    "LPJ"       : GAS_BASE_URL + "?page=LPJ"
+  };
 
-    // ── Map nama page ke URL GAS ──
-    var PAGE_URLS = {
-      "Pengajuan" : GAS_BASE_URL,
-      "Dashboard" : GAS_BASE_URL + "?page=Dashboard",
-      "LPJ"       : GAS_BASE_URL + "?page=LPJ"
-    };
+  var PAGE_LABELS = {
+    "Pengajuan" : "Memuat Form Pengajuan...",
+    "Dashboard" : "Memuat Dashboard Analitik...",
+    "LPJ"       : "Memuat Form LPJ..."
+  };
 
-    // ── Tampilkan loading screen saat ganti halaman ──
-    // ── Tampilkan loading screen ──
-    function showLoading(label) {
-      loadingLabel.textContent = label || "Memuat halaman...";
-      loading.style.display = "flex";   // reset display dulu
-      loading.style.opacity = "1";
-      loading.classList.remove("hidden");
-      frame.classList.remove("visible");
-      frame.style.opacity = "0";
-    }
+  var frame        = document.getElementById("appFrame");
+  var loading      = document.getElementById("loading");
+  var loadingLabel = document.getElementById("loadingLabel");
 
-    // ── Sembunyikan loading saat iframe siap ──
-    function hideLoading() {
-      loading.classList.add("hidden");
-      frame.classList.add("visible");
-      // Sembunyikan setelah transisi CSS selesai (0.4s)
-      setTimeout(function () {
-        if (loading.classList.contains("hidden")) {
-          loading.style.display = "none";
-        }
-      }, 450);
-    }
+  // ============================================================
+  //  BACA HALAMAN DARI QUERY STRING ?nav=X
+  //  Navigasi dari GAS dilakukan via window.open(PAGES_URL?nav=X, "_top")
+  //  sehingga index.html di-reload dengan parameter nav
+  // ============================================================
+  function getNavParam() {
+    var params = new URLSearchParams(window.location.search);
+    return params.get("nav") || "Pengajuan";
+  }
 
-    // ── Navigasi: ganti src iframe tanpa keluar dari GitHub Pages ──
-    function navigateTo(page) {
-      var url = PAGE_URLS[page];
-      if (!url) return;
+  function showLoading(label) {
+    loadingLabel.textContent = label || "Memuat halaman...";
+    loading.style.display    = "flex";
+    loading.style.opacity    = "1";
+    loading.classList.remove("hidden");
+    frame.classList.remove("visible");
+  }
 
-      var labels = {
-        "Pengajuan" : "Memuat Form Pengajuan...",
-        "Dashboard" : "Memuat Dashboard Analitik...",
-        "LPJ"       : "Memuat Form LPJ..."
-      };
-
-      showLoading(labels[page] || "Memuat halaman...");
-      frame.src = url;
-    }
-
-    // ── Terima pesan navigasi dari dalam iframe (GAS pages) ──
-    // GAS menggunakan subdomain googleusercontent.com yang dinamis
-    // sehingga origin tidak bisa diprediksi — validasi cukup dari
-    // struktur payload { bariklanaNav } yang unik untuk app ini
-    window.addEventListener("message", function (event) {
-      var data = event.data;
-      if (data && typeof data === "object" && data.bariklanaNav) {
-        var allowed = ["Pengajuan", "Dashboard", "LPJ"];
-        if (allowed.indexOf(data.bariklanaNav) !== -1) {
-          navigateTo(data.bariklanaNav);
-        }
-      }
-    });
-
-    // ── Loading saat iframe pertama kali selesai load ──
-    frame.addEventListener("load", function () {
-      hideLoading();
-    });
-
-    // ── Fallback: paksa hide loading setelah 10 detik ──
+  function hideLoading() {
+    loading.classList.add("hidden");
+    frame.classList.add("visible");
     setTimeout(function () {
-      loading.classList.add("hidden");
-      frame.classList.add("visible");
-    }, 10000);
-  </script>
+      if (loading.classList.contains("hidden")) loading.style.display = "none";
+    }, 450);
+  }
+
+  function loadPage(page) {
+    var gasUrl = PAGE_MAP[page] || PAGE_MAP["Pengajuan"];
+
+    // Kirim PAGES_BASE_URL ke GAS sebagai query param agar getPagesUrl() otomatis tahu
+    // GAS akan simpan ke PropertiesService via doGet()
+    var pagesParam = encodeURIComponent(PAGES_BASE_URL);
+    var separator  = (gasUrl.indexOf("?") !== -1) ? "&" : "?";
+    var fullUrl    = gasUrl + separator + "pagesUrl=" + pagesParam;
+
+    showLoading(PAGE_LABELS[page] || "Memuat halaman...");
+    frame.src = fullUrl;
+  }
+
+  // ── Load halaman sesuai ?nav= saat pertama buka ──
+  var currentPage = getNavParam();
+  loadPage(currentPage);
+
+  frame.addEventListener("load", function () { hideLoading(); });
+
+  // ── Fallback hide loading setelah 12 detik ──
+  setTimeout(function () {
+    loading.classList.add("hidden");
+    frame.classList.add("visible");
+  }, 12000);
+</script>
 
 </body>
 </html>
